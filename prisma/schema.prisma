@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  REGISTRAR
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  IN_PROGRESS
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role
+  studentId     String?   @unique
+  facultyId     String?   @unique
+  createdAt     DateTime  @default(now())
+
+  attendances       Attendance[]
+  timetables        Timetable[]    @relation("FacultyTimetable")
+  notifications     Notification[] @relation("NotificationRecipient")
+  sentNotifications Notification[] @relation("NotificationSender")
+}
+
+model Timetable {
+  id          String          @id @default(cuid())
+  subject     String
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  facultyId   String
+  faculty     User            @relation("FacultyTimetable", fields: [facultyId], references: [id])
+  locations   ClassLocation[]
+  attendances Attendance[]
+  createdAt   DateTime        @default(now())
+}
+
+model ClassLocation {
+  id          String    @id @default(cuid())
+  timetableId String
+  timetable   Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+  latitude    Float
+  longitude   Float
+  label       String?
+}
+
+model Attendance {
+  id              String           @id @default(cuid())
+  studentId       String
+  student         User             @relation(fields: [studentId], references: [id])
+  timetableId     String
+  timetable       Timetable        @relation(fields: [timetableId], references: [id])
+  date            DateTime         @db.Date
+  status          AttendanceStatus @default(IN_PROGRESS)
+  entryTime       DateTime?
+  exitTime        DateTime?
+  durationMinutes Int              @default(0)
+  locationValid   Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([studentId, timetableId, date])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("NotificationSender", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User     @relation("NotificationRecipient", fields: [recipientId], references: [id])
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
