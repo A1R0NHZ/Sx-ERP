@@ -25,11 +25,16 @@ export default function RegistrarUsers() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/users").then((r) => r.json()).then((d) => {
-      setUsers(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "REGISTRAR") return;
+    fetch("/api/users")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setUsers(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();

@@ -18,11 +18,16 @@ export default function StudentProfile() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/attendance").then((r) => r.json()).then((d) => {
-      setAttendance(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if (user?.role !== "STUDENT") return;
+    fetch("/api/attendance")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setAttendance(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   const total = attendance.length;
   const present = attendance.filter((a) => a.status === "PRESENT").length;

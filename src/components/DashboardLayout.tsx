@@ -22,11 +22,12 @@ const roleNav: Record<string, NavItem[]> = {
     { label: "Notifications", href: "/dashboard/faculty/notifications" },
   ],
   REGISTRAR: [
-    { label: "Overview",   href: "/dashboard/registrar" },
-    { label: "Attendance", href: "/dashboard/registrar/attendance" },
-    { label: "Reports",    href: "/dashboard/registrar/reports" },
-    { label: "Users",      href: "/dashboard/registrar/users" },
-    { label: "Timetable",  href: "/dashboard/registrar/timetable" },
+    { label: "Overview",         href: "/dashboard/registrar" },
+    { label: "Attendance",       href: "/dashboard/registrar/attendance" },
+    { label: "Reports",          href: "/dashboard/registrar/reports" },
+    { label: "Users",            href: "/dashboard/registrar/users" },
+    { label: "Timetable",        href: "/dashboard/registrar/timetable" },
+    { label: "Data Management",  href: "/dashboard/registrar/data" },
   ],
 };
 

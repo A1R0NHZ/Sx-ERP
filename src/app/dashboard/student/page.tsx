@@ -20,15 +20,16 @@ export default function StudentOverview() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "STUDENT") return;
     Promise.all([
-      fetch("/api/attendance").then((r) => r.json()),
-      fetch("/api/timetable").then((r) => r.json()),
+      fetch("/api/attendance").then((r) => r.json()).catch(() => []),
+      fetch("/api/timetable").then((r) => r.json()).catch(() => []),
     ]).then(([att, tt]) => {
       setAttendance(Array.isArray(att) ? att : []);
       setTimetables(Array.isArray(tt) ? tt : []);
       setLoading(false);
     });
-  }, [status]);
+  }, [status, session]);
 
   const total = attendance.length;
   const present = attendance.filter((a) => a.status === "PRESENT").length;

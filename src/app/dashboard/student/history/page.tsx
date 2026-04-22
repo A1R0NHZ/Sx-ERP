@@ -20,11 +20,16 @@ export default function StudentHistory() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/attendance").then((r) => r.json()).then((d) => {
-      setAttendance(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "STUDENT") return;
+    fetch("/api/attendance")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setAttendance(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   const filtered = attendance.filter((a) => {
     const matchSearch = !search || a.timetable?.subject?.toLowerCase().includes(search.toLowerCase());

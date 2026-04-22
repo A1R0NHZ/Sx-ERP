@@ -21,15 +21,17 @@ export default function FacultyAttendance() {
   }, [status, session, router]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "FACULTY") return;
     Promise.all([
-      fetch("/api/attendance").then((r) => r.json()),
-      fetch("/api/timetable").then((r) => r.json()),
+      fetch("/api/attendance").then((r) => r.json()).catch(() => []),
+      fetch("/api/timetable").then((r) => r.json()).catch(() => []),
     ]).then(([att, tt]) => {
       setAttendance(Array.isArray(att) ? att : []);
       setTimetables(Array.isArray(tt) ? tt : []);
       setLoading(false);
     });
-  }, [status]);
+  }, [status, session]);
 
   const filtered = attendance.filter((a) => {
     const matchClass = filter === "all" || a.timetableId === filter;

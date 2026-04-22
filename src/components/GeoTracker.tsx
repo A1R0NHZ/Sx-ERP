@@ -12,23 +12,33 @@ export default function GeoTracker({ timetableId, onDone }: Props) {
   const [error, setError] = useState<string | null>(null);
   const watchRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const checkinThrottleRef = useRef<number>(0);
 
   async function checkin(lat: number, lon: number) {
-    const r = await fetch("/api/attendance/checkin", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timetableId, latitude: lat, longitude: lon }),
-    });
-    const d = await r.json();
-    setLocationValid(d.locationValid);
+    // Throttle checkin calls to at most once every 30 seconds
+    const now = Date.now();
+    if (now - checkinThrottleRef.current < 30000) return;
+    checkinThrottleRef.current = now;
+    try {
+      const r = await fetch("/api/attendance/checkin", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timetableId, latitude: lat, longitude: lon }),
+      });
+      const d = await r.json();
+      setLocationValid(d.locationValid);
+    } catch {
+      // network error — keep tracking silently
+    }
   }
 
   function start() {
     if (!navigator.geolocation) { setError("Geolocation not supported on this device"); return; }
     setPhase("tracking"); setElapsed(0); setError(null); setResult(null);
+    checkinThrottleRef.current = 0;
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => checkin(pos.coords.latitude, pos.coords.longitude),
       () => setError("Location access denied — please allow location permissions"),
-      { enableHighAccuracy: true, maximumAge: 10000 }
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
     );
     timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
   }

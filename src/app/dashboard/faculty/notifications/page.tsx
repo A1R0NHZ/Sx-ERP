@@ -17,11 +17,16 @@ export default function FacultyNotifications() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/notifications").then((r) => r.json()).then((d) => {
-      setNotifications(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "FACULTY") return;
+    fetch("/api/notifications")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setNotifications(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   async function markRead(id: string) {
     await fetch("/api/notifications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });

@@ -17,7 +17,7 @@ export function getDistanceMeters(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export const GEO_RADIUS_METERS = 20;
+export const GEO_RADIUS_METERS = 100;
 export const MIN_DURATION_MINUTES = 45;
 
 export function isWithinRadius(

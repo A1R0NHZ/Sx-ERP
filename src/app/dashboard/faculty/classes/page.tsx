@@ -116,7 +116,7 @@ export default function FacultyClasses() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-medium text-gray-600">
-                  Class Locations <span className="text-gray-400 font-normal">(up to 5, 20m radius each)</span>
+                  Class Locations <span className="text-gray-400 font-normal">(up to 5, 100m radius each)</span>
                 </label>
               </div>
 

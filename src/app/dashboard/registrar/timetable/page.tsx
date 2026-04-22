@@ -21,11 +21,16 @@ export default function RegistrarTimetable() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/timetable").then((r) => r.json()).then((d) => {
-      setTimetables(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "REGISTRAR") return;
+    fetch("/api/timetable")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setTimetables(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   const filtered = timetables.filter((t) => {
     const matchSearch = !search || t.subject?.toLowerCase().includes(search.toLowerCase()) || t.faculty?.name?.toLowerCase().includes(search.toLowerCase());

@@ -100,7 +100,7 @@ export default function LocationPicker({ value, onChange }: Props) {
         }
       },
       () => setLocating(false),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }
 

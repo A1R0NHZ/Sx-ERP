@@ -28,11 +28,16 @@ export default function StudentClasses() {
   }, [status, session, router]);
 
   useEffect(() => {
-    fetch("/api/timetable").then((r) => r.json()).then((d) => {
-      setTimetables(Array.isArray(d) ? d : []);
-      setLoading(false);
-    });
-  }, [status]);
+    if (status !== "authenticated") return;
+    if ((session?.user as any)?.role !== "STUDENT") return;
+    fetch("/api/timetable")
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((d) => {
+        setTimetables(Array.isArray(d) ? d : []);
+        setLoading(false);
+      });
+  }, [status, session]);
 
   const today = new Date().getDay();
   const todayClasses = timetables.filter((t) => t.dayOfWeek === today);

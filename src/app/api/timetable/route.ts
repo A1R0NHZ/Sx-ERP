@@ -4,9 +4,13 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = session?.user as any;
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const where = user.role === "FACULTY" ? { facultyId: user.id } : {};
 
   const timetables = await prisma.timetable.findMany({
+    where,
     include: { locations: true, faculty: { select: { name: true } } },
     orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
   });
